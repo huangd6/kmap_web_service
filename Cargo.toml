@@ -1,0 +1,28 @@
+[package]
+name = "axum_kmap"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7", features = ["multipart", "macros"] }
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tower-http = { version = "0.5", features = ["fs", "limit"] }
+bio = "1.4"
+plotters = "0.3"
+rand = "0.8"
+nalgebra = "0.32"
+tempfile = "3.10.1"
+redis = { version = "0.23", features = ["tokio-comp", "connection-manager"] }
+uuid = { version = "1.4", features = ["v4"] }
+anyhow = "1.0"
+tokio-util = { version = "0.7", features = ["io"] }
+futures = "0.3"
+bytes = "1.0"
+axum-extra = "0.9.0"
+chrono = { version = "0.4", features = ["serde"] }
+bcrypt = "0.10"
+tower = "0.4"
+tower-sessions = "0.11"
+config = "0.13"

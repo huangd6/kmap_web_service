@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kmap - User Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+        
+        .header {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+        
+        .quota-info {
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .view-btn, .delete-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            color: white;
+        }
+        
+        .view-btn {
+            background-color: #4CAF50;
+        }
+        
+        .view-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .delete-btn {
+            background-color: #dc3545;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .action-cell {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .new-analysis-btn, .logout-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .new-analysis-btn:hover, .logout-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .welcome-text {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            margin: 0;
+        }
+        
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        /* Add popup styles for delete confirmation */
+        .delete-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: calc(100% - 40px);
+            max-width: 400px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .delete-popup-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .delete-confirm-btn, .delete-cancel-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            color: white;
+        }
+
+        .delete-confirm-btn {
+            background-color: #dc3545;
+        }
+
+        .delete-cancel-btn {
+            background-color: #4CAF50;
+        }
+
+        .delete-confirm-btn:hover {
+            background-color: #c82333;
+        }
+
+        .delete-cancel-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h3 class="welcome-text">Welcome, {{username}}</h3>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+        
+        <div class="action-row">
+            <a href="/upload" class="new-analysis-btn">Submit a new task</a>
+            <div class="quota-info">
+                Quota Usage: {{quota_used}}/{{quota_total}}
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Submission Time</th>
+                    <th>Completion Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{tasks}}
+            </tbody>
+        </table>
+        
+        <div id="empty-state" style="text-align: center; padding: 40px; color: #666;">
+            No analyses yet. Start by creating a new analysis!
+        </div>
+    </div>
+
+    <!-- Add delete confirmation popup -->
+    <div id="deletePopup" class="delete-popup">
+        <div class="popup-content">
+            <p>Are you sure you want to delete this task?</p>
+            <div class="delete-popup-buttons">
+                <button class="delete-cancel-btn" onclick="cancelDelete()">Cancel</button>
+                <button class="delete-confirm-btn" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        if (document.querySelector('tbody tr')) {
+            document.getElementById('empty-state').style.display = 'none';
+        }
+
+        let taskToDelete = null;
+
+        function showDeleteConfirmation(taskId) {
+            taskToDelete = taskId;
+            document.getElementById('deletePopup').style.display = 'block';
+        }
+
+        function cancelDelete() {
+            document.getElementById('deletePopup').style.display = 'none';
+            taskToDelete = null;
+        }
+
+        function confirmDelete() {
+            if (taskToDelete) {
+                window.location.href = `/delete/${taskToDelete}`;
+            }
+            document.getElementById('deletePopup').style.display = 'none';
+        }
+
+        // Update the tasks HTML to use the new delete confirmation
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                const taskId = btn.getAttribute('href').split('/').pop();
+                showDeleteConfirmation(taskId);
+            };
+        });
+    </script>
+</body>
+</html> 

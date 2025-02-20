@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FASTA File Upload</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('/static/images/dna-background.jpg');
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px;
+            margin-top: 40px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        input[type="file"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        select {
+            background-color: white;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Update button styles for stacked layout */
+        .button-group {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .logout-btn, .return-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .logout-btn:hover, .return-btn:hover {
+            background-color: #45a049;
+        }
+
+    
+    </style>
+</head>
+<body>
+    <!-- Stack buttons in top right -->
+    <div class="button-group">
+        <a href="/logout" class="logout-btn">Logout</a>
+        <a href="/user" class="return-btn">Return to My Task List</a>
+    </div>
+
+    <div class="container">
+        <h1>Run Kmap</h1>
+        <div class="subtitle">Upload FASTA File and Set Parameters</div>
+        <form action="/process" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="fasta_file">FASTA File:</label>
+                <input type="file" id="fasta_file" name="fasta_file" required>
+            </div>
+            <div class="form-group">
+                <label for="n_trial">Number of Trials:</label>
+                <input type="number" id="n_trial" name="n_trial" required>
+            </div>
+            <div class="form-group">
+                <label for="top_k">Top K:</label>
+                <input type="number" id="top_k" name="top_k" required>
+            </div>
+            <div class="form-group">
+                <label for="revcom_mode">Reverse Complement Mode:</label>
+                <select id="revcom_mode" name="revcom_mode" required>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="min_ham_dist_mode">Minimum Hamming Distance Mode:</label>
+                <select id="min_ham_dist_mode" name="min_ham_dist_mode" required>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Process" class="submit-btn">
+            </div>
+        </form>
+    </div>
+</body>
+</html> 

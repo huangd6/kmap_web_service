@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kmap - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-container {
+            max-width: 400px;
+            margin: 0 auto;
+            box-sizing: border-box;  /* Include padding in width */
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;  /* Full width */
+            box-sizing: border-box;  /* Include padding in width */
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;  /* Include padding in width */
+        }
+        
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .toggle-form {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .toggle-form a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .toggle-form a:hover {
+            color: #45a049;
+            text-decoration: underline;
+        }
+
+        /* Update popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;  /* Move down from 50% to 65% */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: calc(100% - 40px);
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .popup-content {
+            text-align: center;
+            color: #000000;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;  /* Take full width of popup */
+        }
+
+        .popup-close {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;  /* Match submit button width */
+        }
+
+        .popup-close:hover {
+            background-color: #45a049;
+        }
+
+        /* Update popup styles for different message types */
+
+        .popup-content.success {
+            color: #4CAF50;  /* Green text for success messages */
+        }
+
+        .popup-content.error {
+            color: #000000;  /* Black text for error messages */
+        }
+    </style>
+
+    <script>
+        // Function to show popup with message
+        function showPopup(message) {
+            const popupContent = document.querySelector('.popup-content');
+            const popupMessage = document.getElementById('popup-message');
+            
+            // Check if message is a success message
+            if (message.toLowerCase().includes('successful')) {
+                popupContent.classList.add('success');
+                popupContent.classList.remove('error');
+            } else {
+                popupContent.classList.add('error');
+                popupContent.classList.remove('success');
+            }
+            
+            popupMessage.textContent = message;
+            document.getElementById('popup').style.display = 'block';
+        }
+
+        // Function to close popup
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        // Check for error message in URL
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const error = urlParams.get('error');
+            const form = urlParams.get('form');
+            
+            if (error) {
+                showPopup(decodeURIComponent(error));
+                
+                // Switch to register form if there was a registration error
+                if (form === 'register') {
+                    const loginForm = document.getElementById('loginForm');
+                    const registerForm = document.getElementById('registerForm');
+                    loginForm.style.display = 'none';
+                    registerForm.style.display = 'block';
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Add popup div -->
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <p id="popup-message"></p>
+            <button class="popup-close" onclick="closePopup()">OK</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-container" id="loginForm">
+            <h2>Login to Kmap Web Service</h2>
+            <form action="/login" method="post">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Login" class="submit-btn">
+                </div>
+            </form>
+            <div class="toggle-form">
+                <p>New user? <a href="javascript:void(0)" onclick="toggleForms()">Register here</a></p>
+            </div>
+        </div>
+
+        <div class="form-container" id="registerForm" style="display: none;">
+            <h2>Register for Kmap Web Service</h2>
+            <form action="/register" method="post">
+                <div class="form-group">
+                    <label for="reg-username">Username:</label>
+                    <input type="text" id="reg-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password:</label>
+                    <input type="password" id="reg-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password:</label>
+                    <input type="password" id="confirm-password" name="confirm_password" required>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Register" class="submit-btn">
+                </div>
+            </form>
+            <div class="toggle-form">
+                <p>Already have an account? <a href="javascript:void(0)" onclick="toggleForms()">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleForms(event) {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html> 

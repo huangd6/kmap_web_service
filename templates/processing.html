@@ -1,0 +1,226 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+        
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        #result {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-family: monospace;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        
+        .result-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .result-table td {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            width: 50%;
+        }
+        
+        .result-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        h3, .file-path {
+            color: #333;
+            text-align: center;
+            margin: 10px 0;
+            font-size: 1.17em;
+            font-weight: bold;
+        }
+        
+        .file-path {
+            font-style: normal;
+        }
+        
+        #timestamps {
+            text-align: center;
+            margin: 10px 0;
+            color: #666;
+        }
+        #timestamps div {
+            margin: 5px 0;
+        }
+        
+        .button-container {
+            position: relative;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .return-btn {
+            order: 1;
+        }
+        
+        .download-btn {
+            order: 2;
+        }
+        
+        .return-btn, .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1em;
+        }
+        
+        .return-btn:hover, .download-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Add logout button styles */
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+    function downloadResults() {
+        window.location.href = `/download/{{task_id}}`;
+    }
+    
+    function formatDateTime(isoString) {
+        if (!isoString) return 'Pending...';
+        const date = new Date(isoString);
+        return date.toLocaleString();
+    }
+    
+    function checkStatus() {
+        fetch('/status/{{task_id}}')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Received data:', data);
+                
+                document.getElementById('status').textContent = 'Status: ' + data.status;
+                
+                // Update timestamps
+                document.getElementById('submit-time').textContent = formatDateTime(data.submit_time);
+                document.getElementById('complete-time').textContent = formatDateTime(data.complete_time);
+                
+                // Display filename and add debug log
+                if (data.filename) {
+                    console.log('Filename found:', data.filename);
+                    document.getElementById('file-path').textContent = 'Fasta File: ' + data.filename;
+                } else {
+                    console.log('No filename in response');
+                }
+                
+                if (data.result) {
+                    const sortedResults = Object.entries(data.result)
+                        .sort(([, a], [, b]) => b - a);
+                    
+                    // Create table HTML
+                    let tableHTML = '<div class="result-header">Results:</div><table class="result-table">';
+                    for (let i = 0; i < sortedResults.length; i += 2) {
+                        tableHTML += '<tr>';
+                        tableHTML += `<td>${sortedResults[i][0]}: ${sortedResults[i][1]}</td>`;
+                        if (i + 1 < sortedResults.length) {
+                            tableHTML += `<td>${sortedResults[i+1][0]}: ${sortedResults[i+1][1]}</td>`;
+                        } else {
+                            tableHTML += '<td></td>';
+                        }
+                        tableHTML += '</tr>';
+                    }
+                    tableHTML += '</table>';
+                    
+                    document.getElementById('result').innerHTML = tableHTML;
+                    
+                    // Stop polling if task is completed or failed
+                    if (data.status === 'Completed' || data.status === 'Failed') {
+                        clearInterval(intervalId);
+                    }
+                }
+                
+                // Show download button when task is completed
+                if (data.status === 'Completed') {
+                    document.getElementById('downloadBtn').style.display = 'block';
+                }
+            });
+    }
+    
+    let intervalId = setInterval(checkStatus, 1000);
+    </script>
+</head>
+<body>
+    <!-- Add logout button -->
+    <a href="/logout" class="logout-btn">Logout</a>
+
+    <div class="container">
+        <h2>Kmap Analysis Results</h2>
+        <div id="file-path" class="file-path"></div>
+        <div id="timestamps">
+            <div>Submitted: <span id="submit-time"></span></div>
+            <div>Completed: <span id="complete-time"></span></div>
+        </div>
+        <div id="status">Status: Queued</div>
+        <pre id="result"></pre>
+        <div class="button-container">
+            <a href="/user" class="return-btn">Return to My Task List</a>
+            <button id="downloadBtn" class="download-btn" style="display: none;" onclick="downloadResults()">Download Results</button>
+        </div>
+    </div>
+</body>
+</html> 

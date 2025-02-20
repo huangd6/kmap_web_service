@@ -1,0 +1,21 @@
+[server]
+host = "0.0.0.0"
+port = 8000
+
+[redis]
+url = "redis://127.0.0.1/"
+sentinel_enabled = false
+sentinel_url = "redis+sentinel://127.0.0.1:26380/mymaster"
+
+[worker]
+worker_count = 20
+max_concurrent_tasks = 10
+
+[upload]
+max_file_size = 10485760  # 10MB in bytes
+temp_dir = "temp"
+results_dir = "results"
+
+[user]
+default_quota = 36000  # 10 hours in seconds
+max_tasks_per_user = 100
