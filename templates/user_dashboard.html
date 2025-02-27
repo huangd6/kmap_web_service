@@ -186,6 +186,40 @@
         .delete-cancel-btn:hover {
             background-color: #45a049;
         }
+
+        /* Add these styles to your existing CSS */
+        .task-limit-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #e8f5e9;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: calc(100% - 40px);
+            max-width: 400px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .task-limit-popup button {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .task-limit-popup button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +230,7 @@
         </div>
         
         <div class="action-row">
-            <a href="/upload" class="new-analysis-btn">Submit a new task</a>
+            <a href="#" onclick="return checkTaskLimit()" class="new-analysis-btn">Submit a new task</a>
             <div class="quota-info">
                 Quota Usage: {{quota_used}}/{{quota_total}}
             </div>
@@ -233,6 +267,14 @@
         </div>
     </div>
 
+    <div id="taskLimitPopup" class="task-limit-popup">
+        <div class="popup-content">
+            <p>You have reached the maximum limit of {{max_tasks}} tasks.</p>
+            <p>Please delete some completed tasks before submitting new ones.</p>
+            <button onclick="closeTaskLimitPopup()">OK</button>
+        </div>
+    </div>
+
     <script>
         if (document.querySelector('tbody tr')) {
             document.getElementById('empty-state').style.display = 'none';
@@ -265,6 +307,23 @@
                 showDeleteConfirmation(taskId);
             };
         });
+
+        // Add this function before the existing script
+        function checkTaskLimit() {
+            const taskCount = parseInt('{{task_count}}');
+            const maxTasks = parseInt('{{max_tasks}}');
+            
+            if (taskCount >= maxTasks) {
+                document.getElementById('taskLimitPopup').style.display = 'block';
+                return false;
+            }
+            window.location.href = '/upload';
+            return false;
+        }
+
+        function closeTaskLimitPopup() {
+            document.getElementById('taskLimitPopup').style.display = 'none';
+        }
     </script>
 </body>
 </html> 

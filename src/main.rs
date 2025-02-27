@@ -5,6 +5,7 @@ mod middleware;
 mod worker;
 mod kmap_algorithms;
 mod config;
+mod errors;
 
 use axum::{
     routing::{get, post},
@@ -24,9 +25,13 @@ use crate::{
     services::RedisService,
     config::Config,
 };
+use tracing_subscriber;
 
 #[tokio::main]
 async fn main() {
+    // Initialize basic tracing subscriber
+    tracing_subscriber::fmt::init();
+
     // Load configuration
     let config = Config::load().expect("Failed to load configuration");
     let config_state = config.clone();
@@ -94,8 +99,7 @@ async fn main() {
         .layer(RequestBodyLimitLayer::new(config.upload.max_file_size))
         
         // Add state
-        .with_state(redis_service)
-        .with_state(config_state);  // Make config available to handlers
+        .with_state((redis_service, config_state));
 
     println!("Server running");
     let listener = tokio::net::TcpListener::bind(
